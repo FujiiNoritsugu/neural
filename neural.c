@@ -3,7 +3,7 @@
 #include <math.h>
 
 #define LAYER_SIZE 3
-#define UNIT_SIZE 3
+#define UNIT_SIZE 10
 #define SIGMOID_PARAM 0.3
 #define LEARNING_PARAM 0.1
 
@@ -27,8 +27,8 @@ void calc_all(void);
 double calc_unit(Unit unit);
 int check_loop(void);
 
-double input_data[UNIT_SIZE] = {0.3,0.3,0.3};
-double output_data[UNIT_SIZE] = {0.1,0.2,0.3};
+double input_data[UNIT_SIZE] = {0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3};
+double output_data[UNIT_SIZE] = {0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0};
 int counter = 0;
 
 int main(int * argc, char ** argv){
@@ -45,11 +45,14 @@ int main(int * argc, char ** argv){
 int check_loop(){
     counter++;
     int result = 0;
-    printf("i = %d,  %f, %f, %f", counter, unit[2][0].value, unit[2][1].value, unit[2][2].value);
+    int i;
+    printf("i = %d ", counter);
+    for(i = 0; i < UNIT_SIZE; i++){
+        printf(",%f", unit[LAYER_SIZE - 1][i].value);
+    }
     printf("\n");
-    if((int)round(100*unit[2][0].value) == 100 
-        && (int)round(100*unit[2][1].value) == 200 
-        && (int)round(100*unit[2][2].value) == 300){
+    for(i = 0; i < UNIT_SIZE; i++){
+        if((int)round(100*unit[LAYER_SIZE - 1][i].value) != (int)round(output_data[i]*100))break; 
         result = 1;
     }
     return result;
