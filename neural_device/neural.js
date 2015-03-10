@@ -6,20 +6,9 @@ var INITIAL_INPUT_WEIGHT = 0.0;
 
 var unit = [];
 var counter = 0;
-console.log("export neural");
 
 function learn(input_data, output_data){
 
-//    for(var i = 1; i < LAYER_SIZE; i++){
-//      for(var j = 0; j < UNIT_SIZE; j++){
-//        for(var k = 0; k < UNIT_SIZE; k++){
-//             console.log("i = " + i + "j = " + j + "k = " + k + "weight = " + unit[i][j].input_weight[k]);
-//        }
-//      }
-//    }
-
-    //initialize_unit();
-    
     while(true){
         calc_error(input_data, output_data);
         back_propagation(); 

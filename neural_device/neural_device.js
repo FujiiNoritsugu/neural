@@ -1,14 +1,47 @@
+// モニタ用サーバに接続
+var UnderScore = require('underscore');
+var SocketClient = require('socket.io-client');
+var Client = SocketClient.connect('http://192.168.1.7:9080');
+Client.on('connect', onConnect);
+Client.on('message', onMessage);
+
+function onConnect(){
+    //socket.send("arm");
+    console.log("connect");
+}
+
+var targetPattern;
+var targetMode;
+
+function onMessage(message){
+    var param = JSON.parse(message);
+    
+    if(UnderScore.isUndefined(param.pattern)){
+        var paramPattern = param.pattern;
+        if(paramPattern === "soft"){
+            targetPattern = SOFT_PATTERN;
+        }else if(paramPattern === "hard"){
+            targetPattern = HARD_PATTERN;
+        }
+    }
+    
+    if(UnderScore.isUndefined(param.mode)){
+        var paramMode = param.mode;
+        targetMode = paramMode;
+    }
+}
+
 var Cylon = require('cylon');
 var Neural = require('./neural.js');
 var bendValue;
 var pressureValue;
 var inputDataArray = [];
 var counter = 0;
-var HARD_LABEL = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
-var SOFT_LABEL = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
-var targetLabel = HARD_LABEL;
-var mode = "learn";
-var LABEL_ARRAY = [{name:hard, pattern:HARD_LABEL},{name:soft, pattern:SOFT_LABEL}];
+var HARD_PATTERN = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
+var SOFT_PATTERN = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
+//var targetPattern = HARD_LABEL;
+//var mode = "learn";
+var PATTERN_ARRAY = [{name:"hard", pattern:HARD_PATTERN},{name:"soft", pattern:SOFT_PATTERN}];
 Neural.initialize(10);
 
 Cylon.robot({
@@ -33,16 +66,18 @@ var actionFunction = function(my){
 	if(pressureValue != 0){
 		inputDataArray.push(bendValue/300);
 		inputDataArray.push(pressureValue/100);
+		// モニタに曲値と圧力値を送信する
+		Client.send(JSON.stringify({bend:bendValue,pressure:pressureValue}));
 		counter ++;
 	}
 
 	if(counter === 10){
 	 console.log("inputDataArray" + inputDataArray);
 	 console.log("learn start");
-	 if(mode === "learn"){
-	     Neural.learn(inputDataArray, targetLabel);
-	 }else{
-	     Neural.classfy(inputaDataArray, LABEL_ARRAY);
+	 if(targetMode === "learn"){
+	     Neural.learn(inputDataArray, targetPattern);
+	 }else if(targetMode === "classify"){
+	     Neural.classify(inputaDataArray, PATTERN_ARRAY);
 	 }
 	 console.log("learn end");
 	 inputDataArray = [];
@@ -50,46 +85,3 @@ var actionFunction = function(my){
 	}
 	console.log("pressure = " + pressureValue);
 };
-
-
-//----------- for monitoring -----------------------------
-//var app = require('http').createServer(handler);
-//var io = require('socket.io').listen(app);
-
-//var fs = require('fs');
-//var html = fs.readFileSync('neural_device.html', 'utf8');
-
-//app.listen(8124);
-
-//var target_socket;
-//io.sockets.on('connection', function(socket){
-//	console.log("connection");
-//	socket.on('message', function(data){
-//		console.log("message = "+data);
-//		target_socket = this;
-//	});
-//	
-//	if(target_socket != null){
-//		target_socket.send("send data");
-//		console.log("send data");
-//	}
-//	process();
-//});
-
-//function handler(req, res){
-// res.setHeader('Content-Type', 'text/html');
-// res.setHeader('Content-Length', Buffer.byteLength(html, 'utf8'));
-// res.end(html);
-//}
-
-//function process(){
-//
-// if(target_socket != null){
-//  if(bendValue != null && pressureValue != null){
-//   target_socket.send(JSON.stringify({bend:bendValue, pressure:pressureValue}));
-//  }
-// }
-// 
-// setInterval(process, 1000);
-//}
-

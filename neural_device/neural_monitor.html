@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script>
+    function sendMode(modeValue){
+      if(socket != null){
+          socket.send(JSON.stringify({mode:modeValue}));
+      }
+    }
+    
+    function sendPattern(patternValue){
+       if(socket != null){
+           socket.send(JSON.stringify({pattern:patternValue}));
+       }
+    }
+</script>
+<body>
+  <h2>Neural Device</h2>
+  <div id="message"></div>
+  <div width = "1200" align = "center">
+    <span>
+        <input type="radio" name="mode" value="learn" checked="checked" onclick="sendMode('learn');">Learning Mode
+        <input type="radio" name="mode" value="classify" onclick="sendMode('classify');">Classify Mode
+    </span>
+    </br>
+    <span>
+        <input type="radio" name="pattern" value="soft" checked="checked" onclick="sendPattern('soft');">Soft Pattern
+        <input type="radio" name="pattern" value="hard" onclick="sendPattern('hard');">Hard Pattern
+    </span>
+    </br>
+  <span>
+    <canvas id="input_scatter" width="500" height="500"></canvas>
+    <canvas id="label_pattern" width="500" height="500"></canvas>
+  </span>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+
+try{
+var socket = io.connect('http://192.168.1.7:8124/');
+
+socket.send(JSON.stringify({mode:"learn",pattern:"soft"}));
+
+var pointData = [];
+
+socket.on('message', onMessage);
+
+function onMessage (message){
+
+try{
+	var param = JSON.parse(message);
+	pointData.push({bend:param.bend, pressure:param.pressure});
+	redraw();
+	pointData = [];
+}catch(e){
+	alert(e);
+}
+}
+
+}catch(e){
+	alert(e);
+}
+
+function redraw(){
+var canvas = document.getElementById('input_scatter');
+ if (canvas.getContext) {
+
+ var context = canvas.getContext('2d');
+
+ //ã»Ç∞Ç∆à≥óÕÇ≈éUïzê}Çï`Ç≠
+ for(point of pointData){
+     context.arc(point.bend - 200, 200 - point.pressure, 10, 0, Math.PI*2, false);
+ }
+ context.fill();
+
+ } 
+}
+
+</script>
+
+</body>
+</html>
