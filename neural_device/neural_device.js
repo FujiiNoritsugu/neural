@@ -50,26 +50,23 @@ Cylon.robot({
 	          bendSensor:{driver: 'analogSensor', pin:1},
 	          pressureSensor:{driver: 'analogSensor', pin:3}},
 	work: function(my){
-		every((1).second(), function(){ actionFunction(my); });
+		every((2).second(), function(){ actionFunction(my); });
 	}
 	}).start();
 
 var actionFunction = function(my){
 	bendValue = my.bendSensor.analogRead();
-	console.log("bend = " + bendValue);
+	//console.log("bend = " + bendValue);
 	// 曲げセンサの値は270～210
 	// サーボの角度を6段階に分けて実行
 	var angle = Math.round((bendValue - 210) / 10) * 10;
-	my.armServo.angle(angle);
+	//for(var i = 0; i < 10; i++){
+	//    my.armServo.angle(angle - 10 + i);
+	//}
+	    my.armServo.angle(angle);
 
-	pressureValue = my.pressureSensor.analogRead();
-	if(pressureValue != 0){
-		inputDataArray.push(bendValue/300);
-		inputDataArray.push(pressureValue/100);
-		// モニタに曲値と圧力値を送信する
-		Client.send(JSON.stringify({bend:bendValue,pressure:pressureValue}));
-		counter ++;
-	}
+	// 0.3秒後に圧力データを測りデータを保持する
+	setTimeout(measurePressure, 300, my);
 
 	if(counter === 10){
 	 console.log("inputDataArray" + inputDataArray);
@@ -83,5 +80,18 @@ var actionFunction = function(my){
 	 inputDataArray = [];
 	 counter = 0;
 	}
-	console.log("pressure = " + pressureValue);
+	//console.log("pressure = " + pressureValue);
 };
+
+function measurePressure(my){
+	pressureValue = my.pressureSensor.analogRead();
+	if(pressureValue != 0){
+	console.log("bend = " + bendValue + " pressure = " + pressureValue);
+		inputDataArray.push(bendValue/300);
+		inputDataArray.push(pressureValue/100);
+		// モニタに曲値と圧力値を送信する
+		Client.send(JSON.stringify({bend:bendValue,pressure:pressureValue}));
+		counter ++;
+	}
+
+}
