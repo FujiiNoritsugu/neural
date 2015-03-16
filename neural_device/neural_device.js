@@ -14,20 +14,19 @@ var targetPattern;
 var targetMode;
 
 function onMessage(message){
-    var param = JSON.parse(message);
-    
-    if(UnderScore.isUndefined(param.pattern)){
-        var paramPattern = param.pattern;
-        if(paramPattern === "soft"){
-            targetPattern = SOFT_PATTERN;
-        }else if(paramPattern === "hard"){
-            targetPattern = HARD_PATTERN;
-        }
-    }
-    
-    if(UnderScore.isUndefined(param.mode)){
-        var paramMode = param.mode;
-        targetMode = paramMode;
+    var paramArray = JSON.parse(message);
+    if(UnderScore.isArray(paramArray)){
+        UnderScore.each(paramArray, 
+        function(param, index, array){
+            if(UnderScore.isUndefined(param.type)){
+                var paramType = param.type;
+                if(paramType === "mode"){
+                    targetMode = param.value;
+                }else if(paramType === "pattern"){
+                    targetPattern = param.value;
+                }
+            }
+        });
     }
 }
 
@@ -47,6 +46,7 @@ Neural.initialize(10);
 Cylon.robot({
 	connections: { arduino:{adaptor: 'firmata', port: '/dev/ttyACM0'}},
 	devices: {armServo:{driver: 'servo', pin:9},
+	          otherServo:{driver: 'servo', pin:4},
 	          bendSensor:{driver: 'analogSensor', pin:1},
 	          pressureSensor:{driver: 'analogSensor', pin:3}},
 	work: function(my){
@@ -59,12 +59,9 @@ var actionFunction = function(my){
 	//console.log("bend = " + bendValue);
 	// 曲げセンサの値は270～210
 	// サーボの角度を6段階に分けて実行
-	var angle = Math.round((bendValue - 210) / 10) * 10;
-	//for(var i = 0; i < 10; i++){
-	//    my.armServo.angle(angle - 10 + i);
-	//}
+	var angle = Math.round((bendValue - 210) / 10) * 5;
 	    my.armServo.angle(angle);
-
+        my.otherServo.angle(angle);
 	// 0.3秒後に圧力データを測りデータを保持する
 	setTimeout(measurePressure, 300, my);
 
