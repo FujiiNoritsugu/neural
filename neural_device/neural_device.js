@@ -46,7 +46,6 @@ Neural.initialize(10);
 Cylon.robot({
 	connections: { arduino:{adaptor: 'firmata', port: '/dev/ttyACM0'}},
 	devices: {armServo:{driver: 'servo', pin:9},
-	          otherServo:{driver: 'servo', pin:4},
 	          bendSensor:{driver: 'analogSensor', pin:1},
 	          pressureSensor:{driver: 'analogSensor', pin:3}},
 	work: function(my){
@@ -59,9 +58,8 @@ var actionFunction = function(my){
 	//console.log("bend = " + bendValue);
 	// 曲げセンサの値は270～210
 	// サーボの角度を6段階に分けて実行
-	var angle = Math.round((bendValue - 210) / 10) * 5;
-	    my.armServo.angle(angle);
-        my.otherServo.angle(angle);
+	var angle = Math.round((bendValue - 210) / 10) * 10;
+	my.armServo.angle(angle);
 	// 0.3秒後に圧力データを測りデータを保持する
 	setTimeout(measurePressure, 300, my);
 
