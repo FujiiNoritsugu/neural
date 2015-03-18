@@ -20,15 +20,17 @@
 <body>
   <h2>Neural Device</h2>
   <div id="message"></div>
-  <div width = "1200" align = "center">
+  <div width = "1200" align = "center" style="font-weight:bold;">
     <span id = "modeArea">
-        <input type="radio" name="mode" value="learn" checked="checked" onclick="sendMode('learn');">Learning Mode
-        <input type="radio" name="mode" value="classify" onclick="sendMode('classify');">Classify Mode
+        Mode:
+        <input type="radio" name="mode" value="learn" checked="checked" onclick="sendMode('learn');">Learning
+        <input type="radio" name="mode" value="classify" onclick="sendMode('classify');">Classify
     </span>
     </br>
     <span id = "patternArea">
-        <input type="radio" name="pattern" value="soft" checked="checked" onclick="sendPattern('soft');">Soft Pattern
-        <input type="radio" name="pattern" value="hard" onclick="sendPattern('hard');">Hard Pattern
+        Pattern:
+        <input type="radio" name="pattern" value="soft" checked="checked" onclick="sendPattern('soft');">Soft
+        <input type="radio" name="pattern" value="hard" onclick="sendPattern('hard');">Hard
     </span>
     </br>
   <span>
@@ -36,58 +38,51 @@
     <canvas id="label_pattern" width="300" height="300"></canvas>
   </span>
   </div>
-
+                            
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
+    // U•z}ƒGƒŠƒA‚Æƒpƒ^[ƒ“ƒGƒŠƒA‚Ì˜gü‚ğ•`‚­
+    var inputArea = document.getElementById('input_scatter');
+    inputAreaContext = inputArea.getContext('2d');
+    inputAreaContext.rect(0, 0, 300, 300)
+    inputAreaContext.stroke();
+    var patternArea = document.getElementById('label_pattern');
+    patternAreaContext = patternArea.getContext('2d');
+    patternAreaContext.rect(300, 0, 300, 300)
+    patternAreaContext.stroke();
+
 try{
+
 var socket = io.connect('http://192.168.1.7:8124/');
 
-socket.send(JSON.stringify([{type:"mode",value:"learn"},{type="pattern",value:"soft"}]));
+socket.send(JSON.stringify([{type:"mode",value:"learn"},{type:"pattern",value:"soft"}]));
 
 socket.on('message', onMessage);
 
+}catch(e){
+	alert(e);
+}
+
 function onMessage (message){
-
-try{
-	var param = JSON.parse(message);
-	pointData.push({bend:param.bend, pressure:param.pressure});
-	redraw();
-}catch(e){
-	alert(e);
-}
-}
-
-}catch(e){
-	alert(e);
+    try{
+        var param = JSON.parse(message);
+        alert('message = ' + message);
+        redraw(param);
+    }catch(e){
+        alert(e);
+    }
 }
 
-function initDraw(){
-// U•z}ƒGƒŠƒA‚Æƒpƒ^[ƒ“ƒGƒŠƒA‚Ì˜gü‚ğ•`‚­
-var inputArea = getElementById('input_scatter');
- inputAreaContext = inputArea.getContext('2d');
- inputAreaContext.rect(0, 0, 300, 300)
- inputAreaContext.stroke();
-var patternArea = getElementById('label_pattern');
- patternAreaContext = patternArea.getContext('2d');
- patternAreaContext.rect(300, 0, 300, 300)
- patternAreaContext.stroke();
-
-}
-
-function redraw(point){
-var canvas = document.getElementById('input_scatter');
- if (canvas.getContext) {
-
- var context = canvas.getContext('2d');
-
- //‹È‚°‚Æˆ³—Í‚ÅU•z}‚ğ•`‚­
- context.arc(point.bend - 200, 200 - point.pressure, 5, 0, Math.PI*2, false);
- 
- context.fill();
-
- } 
-}
+function redraw(param){
+    var canvas = document.getElementById('input_scatter');
+    if (canvas.getContext) {
+        var context = canvas.getContext('2d');
+        //‹È‚°‚Æˆ³—Í‚ÅU•z}‚ğ•`‚­
+        context.arc(param.bend - 200, 200 - param.pressure, 5, 0, Math.PI*2, false);
+        context.fill();
+    }
+}   
 
 </script>
 
