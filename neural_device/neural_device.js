@@ -72,6 +72,7 @@ var actionFunction = function(my){
 	     Neural.classify(inputaDataArray, PATTERN_ARRAY);
 	 }
 	 console.log("learn end");
+	 Client.send(JSON.stringify({message:"Learn End!!"}));
 	 inputDataArray = [];
 	 counter = 0;
 	}

@@ -19,7 +19,7 @@
 </script>
 <body>
   <h2>Neural Device</h2>
-  <div id="message"></div>
+  <div id="messageArea"></div>
   <div width = "1200" align = "center" style="font-weight:bold;">
     <span id = "modeArea">
         Mode:
@@ -34,8 +34,8 @@
     </span>
     </br>
   <span>
-    <canvas id="input_scatter" width="300" height="300"></canvas>
-    <canvas id="label_pattern" width="300" height="300"></canvas>
+    <canvas id="input_scatter" width="400" height="400"></canvas>
+    <canvas id="label_pattern" width="400" height="400"></canvas>
   </span>
   </div>
                             
@@ -45,13 +45,14 @@
     // U•z}ƒGƒŠƒA‚Æƒpƒ^[ƒ“ƒGƒŠƒA‚Ì˜gü‚ğ•`‚­
     var inputArea = document.getElementById('input_scatter');
     inputAreaContext = inputArea.getContext('2d');
-    inputAreaContext.rect(0, 0, 300, 300)
+    inputAreaContext.rect(0, 0, 400, 400);
     inputAreaContext.stroke();
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
-    patternAreaContext.rect(300, 0, 300, 300)
+    patternAreaContext.rect(0, 0, 400, 400);
     patternAreaContext.stroke();
 
+    var messageArea = document.getElementById('messageArea');
 try{
 
 var socket = io.connect('http://192.168.1.7:8124/');
@@ -67,8 +68,10 @@ socket.on('message', onMessage);
 function onMessage (message){
     try{
         var param = JSON.parse(message);
-        alert('message = ' + message);
-        redraw(param);
+        messageArea.innerHTML = message;
+        if(param.bend != undefined && param.pressure != undefined){
+            redraw(param);
+        }
     }catch(e){
         alert(e);
     }
@@ -79,7 +82,11 @@ function redraw(param){
     if (canvas.getContext) {
         var context = canvas.getContext('2d');
         //‹È‚°‚Æˆ³—Í‚ÅU•z}‚ğ•`‚­
-        context.arc(param.bend - 200, 200 - param.pressure, 5, 0, Math.PI*2, false);
+        var arcX = Math.round((270 - param.bend) * (400/(270-190)));
+        var arcY = 400 - Math.round(param.pressure * (400/700));
+        context.beginPath();
+        context.arc(arcX, arcY, 5, 0, Math.PI*2, false);
+        context.fillStyle = 'red';
         context.fill();
     }
 }   
