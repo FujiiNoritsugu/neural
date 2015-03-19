@@ -12,6 +12,7 @@
     }
     
     function sendPattern(patternValue){
+       pattern = patternValue;
        if(socket != null){
            socket.send(JSON.stringify([{type:"pattern",value:patternValue}]));
        }
@@ -47,12 +48,17 @@
     inputAreaContext = inputArea.getContext('2d');
     inputAreaContext.rect(0, 0, 400, 400);
     inputAreaContext.stroke();
+    //inputAreaContext.font = 'bold 40pt Calibri';
+    //inputAreaContext.fillText("bend", 0, 390);
+    //inputAreaContext.fillText("pressure", 0, 10);
+    //inputAreaContext.fillText("pressure", 200, 10);
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
     patternAreaContext.rect(0, 0, 400, 400);
     patternAreaContext.stroke();
 
     var messageArea = document.getElementById('messageArea');
+    var pattern = "soft";
 try{
 
 var socket = io.connect('http://192.168.1.7:8124/');
@@ -70,15 +76,25 @@ function onMessage (message){
         var param = JSON.parse(message);
         messageArea.innerHTML = message;
         if(param.bend != undefined && param.pressure != undefined){
-            redraw(param);
+            drawData(param);
+        }
+        if(param.pattern != undefined){
+            drawPattern(param.pattern);
         }
     }catch(e){
         alert(e);
     }
 }
 
-function redraw(param){
+function drawData(param){
     var canvas = document.getElementById('input_scatter');
+    var fontColor = null;
+    if(pattern === "soft"){
+        fontColor = "blue";
+    } else if(pattern = "hard"){
+        fontColor = "red";
+    }
+    
     if (canvas.getContext) {
         var context = canvas.getContext('2d');
         //ã»Ç∞Ç∆à≥óÕÇ≈éUïzê}Çï`Ç≠
@@ -86,10 +102,29 @@ function redraw(param){
         var arcY = 400 - Math.round(param.pressure * (400/700));
         context.beginPath();
         context.arc(arcX, arcY, 5, 0, Math.PI*2, false);
-        context.fillStyle = 'red';
+        context.fillStyle = fontColor;
         context.fill();
     }
 }   
+
+function drawPattern(pattern){
+    var patternArea = document.getElementById('label_pattern');
+    patternAreaContext = patternArea.getContext('2d');
+    patternAreaContext.clearRect(0,0,400,400);
+    for(var i = 0; i < 4; i++){
+        for(var j = 0; j < 5; j++){
+         var patternValue = pattern[i*5 + j];
+         if(patternValue == 0.5){
+            patternAreaContext.fillStyle = 'red';
+         }else if(patternValue == 0.3){
+            patternAreaContext.fillStyle = 'blue';
+         }
+         patternAreaContext.font = 'bold 20pt Calibri';
+         patternAreaContext.fillText(patternValue, (j + 1) * 60, (i + 1) * 80);
+        }
+    }
+
+}
 
 </script>
 

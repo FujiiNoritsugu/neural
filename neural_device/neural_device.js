@@ -18,17 +18,27 @@ function onMessage(message){
     if(UnderScore.isArray(paramArray)){
         UnderScore.each(paramArray, 
         function(param, index, array){
-            if(UnderScore.isUndefined(param.type)){
+            if(!UnderScore.isUndefined(param.type)){
                 var paramType = param.type;
                 if(paramType === "mode"){
                     targetMode = param.value;
                 }else if(paramType === "pattern"){
-                    targetPattern = param.value;
+                    if(param.value === "soft"){
+                        targetPattern = SOFT_PATTERN;
+                    }else if(param.value === "hard"){
+                        targetPattern = HARD_PATTERN;
+                    }
+                    
+                    // 画面にパターンの値を通知する
+                    Client.send(JSON.stringify({pattern:targetPattern}));
                 }
             }
         });
     }
 }
+
+var HARD_PATTERN = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
+var SOFT_PATTERN = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
 
 var Cylon = require('cylon');
 var Neural = require('./neural.js');
@@ -36,10 +46,7 @@ var bendValue;
 var pressureValue;
 var inputDataArray = [];
 var counter = 0;
-var HARD_PATTERN = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
-var SOFT_PATTERN = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
-//var targetPattern = HARD_LABEL;
-//var mode = "learn";
+
 var PATTERN_ARRAY = [{name:"hard", pattern:HARD_PATTERN},{name:"soft", pattern:SOFT_PATTERN}];
 Neural.initialize(10);
 
@@ -66,6 +73,7 @@ var actionFunction = function(my){
 	if(counter === 10){
 	 console.log("inputDataArray" + inputDataArray);
 	 console.log("learn start");
+	 Client.send(JSON.stringify({message:"Learn Start!!"}));
 	 if(targetMode === "learn"){
 	     Neural.learn(inputDataArray, targetPattern);
 	 }else if(targetMode === "classify"){
