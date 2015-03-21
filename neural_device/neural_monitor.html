@@ -22,24 +22,52 @@
   <h2>Neural Device</h2>
   <div id="messageArea"></div>
   <div width = "1200" align = "center" style="font-weight:bold;">
-    <span id = "modeArea">
-        Mode:
-        <input type="radio" name="mode" value="learn" checked="checked" onclick="sendMode('learn');">Learning
-        <input type="radio" name="mode" value="classify" onclick="sendMode('classify');">Classify
-    </span>
-    </br>
-    <span id = "patternArea">
-        Pattern:
-        <input type="radio" name="pattern" value="soft" checked="checked" onclick="sendPattern('soft');">Soft
-        <input type="radio" name="pattern" value="hard" onclick="sendPattern('hard');">Hard
-    </span>
-    </br>
-  <span>
-    <canvas id="input_scatter" width="400" height="400"></canvas>
-    <canvas id="label_pattern" width="400" height="400"></canvas>
-  </span>
+  <table>
+    <tr>
+        <th>&nbsp;</th>
+        <th>
+            <span style="font:bold 15pt MSゴシック;">Input Data</span>
+        </th>
+        <th>
+            <span style="font:bold 15pt MSゴシック;">Pattern</span>
+        </th>
+    </tr>
+    <tr>
+        <td>
+            <span style="font:bold 15pt MSゴシック;display:inline-block;transform:rotate(-90deg);">
+                pressure
+            </span>
+        </td>
+        <td>
+            <canvas id="input_scatter" width="400" height="400"></canvas>
+        </td>
+        <td>
+            <canvas id="label_pattern" width="400" height="400"></canvas>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            &nbsp;
+        </td>
+        <td style="text-align:center">
+            <span style="font:bold 15pt MSゴシック;">bend</span>
+        </td>
+        <td>
+            <span id = "patternArea">
+                Pattern:
+                <input type="radio" name="pattern" value="soft" checked="checked" onclick="sendPattern('soft');">Soft
+                <input type="radio" name="pattern" value="hard" onclick="sendPattern('hard');">Hard
+            </span>
+        </td>
+    </tr>
+  </table>
+  <table>
+        <tr>
+            <td><input type="button" value="Learn" /></td>
+            <td><input type="button" value="classify" /></td>
+        </tr>
+   </table>
   </div>
-                            
 <script src="/socket.io/socket.io.js"></script>
 <script>
 
@@ -48,10 +76,6 @@
     inputAreaContext = inputArea.getContext('2d');
     inputAreaContext.rect(0, 0, 400, 400);
     inputAreaContext.stroke();
-    //inputAreaContext.font = 'bold 40pt Calibri';
-    //inputAreaContext.fillText("bend", 0, 390);
-    //inputAreaContext.fillText("pressure", 0, 10);
-    //inputAreaContext.fillText("pressure", 200, 10);
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
     patternAreaContext.rect(0, 0, 400, 400);
@@ -110,7 +134,7 @@ function drawData(param){
 function drawPattern(pattern){
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
-    patternAreaContext.clearRect(0,0,400,400);
+    patternAreaContext.clearRect(10,10,380,380);
     for(var i = 0; i < 4; i++){
         for(var j = 0; j < 5; j++){
          var patternValue = pattern[i*5 + j];
