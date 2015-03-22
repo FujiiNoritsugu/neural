@@ -72,15 +72,21 @@ var actionFunction = function(my){
 
 	if(counter === 10){
 	 console.log("inputDataArray" + inputDataArray);
-	 console.log("learn start");
-	 Client.send(JSON.stringify({message:"Learn Start!!"}));
 	 if(targetMode === "learn"){
+	    console.log("learn start");
+	    Client.send(JSON.stringify({message:"Learn Start!!"}));
 	     Neural.learn(inputDataArray, targetPattern);
+	    console.log("learn end");
+	    Client.send(JSON.stringify({message:"Learn End!!"}));
 	 }else if(targetMode === "classify"){
-	     Neural.classify(inputaDataArray, PATTERN_ARRAY);
+        console.log("classify start");
+        Client.send(JSON.stringify({message:"Classify Start!!"}));
+	     var result = Neural.classify(inputaDataArray, PATTERN_ARRAY);
+        console.log("classify end");
+        Client.send(JSON.stringify({message:"Classify End!!"}));
+        // ‰æ–Ê‚ÉŒ‹‰Ê‚ð’Ê’m‚·‚é
+        Client.send(JSON.stringify(result));
 	 }
-	 console.log("learn end");
-	 Client.send(JSON.stringify({message:"Learn End!!"}));
 	 inputDataArray = [];
 	 counter = 0;
 	}

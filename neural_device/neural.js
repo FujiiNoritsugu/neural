@@ -137,6 +137,7 @@ function initialize_unit(dataSize){
 }
 
 function classify(input_data, label_array){
+    var resultObj = null;
     // ¡‚Ü‚Å‚Ìd‚İ‚Åo—Í‚ğŒvZ‚·‚éB
     for(var i = 0; i < UNIT_SIZE; i++){
         unit[0][i].value = input_data[i];
@@ -144,23 +145,39 @@ function classify(input_data, label_array){
     
     calc_all();
 
+    // ŒvZŒ‹‰Ê‚ğ”z—ñ‚É•ÏŠ·‚·‚é
+    var target_array = [];
+    for(var k = 0; k < UNIT_SIZE; k++){
+        target_array.push(unit[LAYER_SIZE - 1][j].value);
+    }
+
+    // Œ‹‰Ê‚Éo—Í‚ğİ’è
+    resultObj.result_out = target_array;
    // “ñæ˜aŒë·‚Å•ª—Ş‚·‚é
    var label_count = label_array.size;
    var target_label = label_array[0].name;
    var min_sum_error = -1;
    for(var i = 0; i < label_count; i ++){
-   var sum_error = 0;
-   var label_pattern = label_array[i].pattern;
+    var sum_error = 0;
+    var label_pattern = label_array[i].pattern;
      for(var j = 0; j < UNIT_SIZE; j++){
-        sum_error += Math.pow((unit[LAYER_SIZE - 1][j].value - label_pattern[j]), 2);
-       if(sum_error < min_sum_error){
-         min_sum_error = sum_error;
-         target_label = label_pattern[i].label_name;
-       }
+        sum_error += Math.pow((target_array[j] - label_pattern[j]), 2);
      }
+
+    // ƒ‰ƒxƒ‹–ˆ‚Ì“ñæ˜aŒë·‚ğŠi”[
+    var resut_label_name = "result-"+label_array[i].name;
+    resultObj.result_label_name = sum_error;
+    if(sum_error < min_sum_error){
+     min_sum_error = sum_error;
+     target_label = label_pattern[i].label_name;
+    }
+
    }
    
-   return target_lable;
+   resultObj.result_label = target_label;
+   resultObj.result_sum_error = min_sum_error;
+
+   return resultObj;
 
 }
 

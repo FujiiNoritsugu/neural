@@ -5,6 +5,7 @@
       if(modeValue === 'classify'){
         var patternArea = getElementById("patternArea");
         patternArea.disabled;
+        pattern = "result";
       }
       if(socket != null){
           socket.send(JSON.stringify([{type:"mode",value:modeValue}]));
@@ -52,7 +53,7 @@
         <td style="text-align:center">
             <span style="font:bold 15pt MSƒSƒVƒbƒN;">bend</span>
         </td>
-        <td>
+        <td style="text-align:center">
             <span id = "patternArea">
                 Pattern:
                 <input type="radio" name="pattern" value="soft" checked="checked" onclick="sendPattern('soft');">Soft
@@ -63,8 +64,8 @@
   </table>
   <table>
         <tr>
-            <td><input type="button" value="Learn" /></td>
-            <td><input type="button" value="classify" /></td>
+            <td><input type="button" value="Learn" onClick = "sendMode('classify')"/></td>
+            <td><input type="button" value="classify" onClick = "sendMode('learn')"/></td>
         </tr>
    </table>
   </div>
@@ -117,6 +118,8 @@ function drawData(param){
         fontColor = "blue";
     } else if(pattern = "hard"){
         fontColor = "red";
+    } else {
+        fontColor = "yellow";
     }
     
     if (canvas.getContext) {
