@@ -3,10 +3,11 @@
 <script>
     function sendMode(modeValue){
       if(modeValue === 'classify'){
-        var patternArea = getElementById("patternArea");
-        patternArea.disabled;
+        var patternArea = document.getElementById("patternArea");
+        patternArea.style = "display:none;";
         pattern = "result";
       }
+      
       if(socket != null){
           socket.send(JSON.stringify([{type:"mode",value:modeValue}]));
       }
@@ -64,8 +65,8 @@
   </table>
   <table>
         <tr>
-            <td><input type="button" value="Learn" onClick = "sendMode('classify')"/></td>
-            <td><input type="button" value="classify" onClick = "sendMode('learn')"/></td>
+            <td><input type="button" value="Learn" onClick = "sendMode('learn');"/></td>
+            <td><input type="button" value="classify" onClick = "sendMode('classify');"/></td>
         </tr>
    </table>
   </div>
@@ -116,7 +117,7 @@ function drawData(param){
     var fontColor = null;
     if(pattern === "soft"){
         fontColor = "blue";
-    } else if(pattern = "hard"){
+    } else if(pattern === "hard"){
         fontColor = "red";
     } else {
         fontColor = "yellow";
@@ -126,7 +127,7 @@ function drawData(param){
         var context = canvas.getContext('2d');
         //ã»Ç∞Ç∆à≥óÕÇ≈éUïzê}Çï`Ç≠
         var arcX = Math.round((270 - param.bend) * (400/(270-190)));
-        var arcY = 400 - Math.round(param.pressure * (400/700));
+        var arcY = 400 - Math.round(param.pressure * (400/850));
         context.beginPath();
         context.arc(arcX, arcY, 5, 0, Math.PI*2, false);
         context.fillStyle = fontColor;

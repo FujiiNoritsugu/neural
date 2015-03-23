@@ -22,6 +22,7 @@ function onMessage(message){
                 var paramType = param.type;
                 if(paramType === "mode"){
                     targetMode = param.value;
+console.log("mode = " + targetMode);
                 }else if(paramType === "pattern"){
                     if(param.value === "soft"){
                         targetPattern = SOFT_PATTERN;
@@ -81,7 +82,7 @@ var actionFunction = function(my){
 	 }else if(targetMode === "classify"){
         console.log("classify start");
         Client.send(JSON.stringify({message:"Classify Start!!"}));
-	     var result = Neural.classify(inputaDataArray, PATTERN_ARRAY);
+	     var result = Neural.classify(inputDataArray, PATTERN_ARRAY);
         console.log("classify end");
         Client.send(JSON.stringify({message:"Classify End!!"}));
         // ‰æ–Ê‚ÉŒ‹‰Ê‚ð’Ê’m‚·‚é

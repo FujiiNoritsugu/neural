@@ -137,7 +137,7 @@ function initialize_unit(dataSize){
 }
 
 function classify(input_data, label_array){
-    var resultObj = null;
+    var resultObj = {};
     // 今までの重みで出力を計算する。
     for(var i = 0; i < UNIT_SIZE; i++){
         unit[0][i].value = input_data[i];
@@ -148,7 +148,7 @@ function classify(input_data, label_array){
     // 計算結果を配列に変換する
     var target_array = [];
     for(var k = 0; k < UNIT_SIZE; k++){
-        target_array.push(unit[LAYER_SIZE - 1][j].value);
+        target_array.push(unit[LAYER_SIZE - 1][k].value);
     }
 
     // 結果に出力を設定
