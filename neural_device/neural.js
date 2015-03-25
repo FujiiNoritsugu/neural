@@ -137,6 +137,9 @@ function initialize_unit(dataSize){
 }
 
 function classify(input_data, label_array){
+
+console.log("classify start");
+
     var resultObj = {};
     // ¡‚Ü‚Å‚Ìd‚İ‚Åo—Í‚ğŒvZ‚·‚éB
     for(var i = 0; i < UNIT_SIZE; i++){
@@ -154,9 +157,10 @@ function classify(input_data, label_array){
     // Œ‹‰Ê‚Éo—Í‚ğİ’è
     resultObj.result_out = target_array;
    // “ñæ˜aŒë·‚Å•ª—Ş‚·‚é
-   var label_count = label_array.size;
+   var label_count = label_array.length;
    var target_label = label_array[0].name;
-   var min_sum_error = -1;
+   var min_sum_error = 20;
+console.log("classify label_count =" + label_count);
    for(var i = 0; i < label_count; i ++){
     var sum_error = 0;
     var label_pattern = label_array[i].pattern;
@@ -165,17 +169,24 @@ function classify(input_data, label_array){
      }
 
     // ƒ‰ƒxƒ‹–ˆ‚Ì“ñæ˜aŒë·‚ğŠi”[
-    var resut_label_name = "result-"+label_array[i].name;
-    resultObj.result_label_name = sum_error;
+    compare_error = "compare_"+label_array[i].name;
+    //if(i === 0){
+        resultObj.compare_error = sum_error;
+    //}else{
+    //    resultObj.compare_hard = sum_error;
+    //}
+console.log("classify sum_error = " + sum_error);
     if(sum_error < min_sum_error){
      min_sum_error = sum_error;
-     target_label = label_pattern[i].label_name;
+     target_label = label_pattern[i].name;
     }
 
    }
    
    resultObj.result_label = target_label;
    resultObj.result_sum_error = min_sum_error;
+
+console.log("classify end");
 
    return resultObj;
 

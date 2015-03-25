@@ -72,7 +72,7 @@ var actionFunction = function(my){
 	setTimeout(measurePressure, 300, my);
 
 	if(counter === 10){
-	 console.log("inputDataArray" + inputDataArray);
+	 //console.log("inputDataArray" + inputDataArray);
 	 if(targetMode === "learn"){
 	    console.log("learn start");
 	    Client.send(JSON.stringify({message:"Learn Start!!"}));
@@ -84,6 +84,7 @@ var actionFunction = function(my){
         Client.send(JSON.stringify({message:"Classify Start!!"}));
 	     var result = Neural.classify(inputDataArray, PATTERN_ARRAY);
         console.log("classify end");
+        console.log("result = " + JSON.stringify(result));
         Client.send(JSON.stringify({message:"Classify End!!"}));
         // ‰æ–Ê‚ÉŒ‹‰Ê‚ð’Ê’m‚·‚é
         Client.send(JSON.stringify(result));
