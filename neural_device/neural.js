@@ -170,15 +170,12 @@ console.log("classify label_count =" + label_count);
 
     // ƒ‰ƒxƒ‹–ˆ‚Ì“ñæ˜aŒë·‚ğŠi”[
     compare_error = "compare_"+label_array[i].name;
-    //if(i === 0){
-        resultObj.compare_error = sum_error;
-    //}else{
-    //    resultObj.compare_hard = sum_error;
-    //}
+    resultObj[compare_error] = sum_error;
+
 console.log("classify sum_error = " + sum_error);
     if(sum_error < min_sum_error){
      min_sum_error = sum_error;
-     target_label = label_pattern[i].name;
+     target_label = label_array[i].name;
     }
 
    }
