@@ -12,6 +12,7 @@ function onConnect(){
 
 var targetPattern;
 var targetMode;
+var resultArray;
 
 function onMessage(message){
     var paramArray = JSON.parse(message);
@@ -22,14 +23,14 @@ function onMessage(message){
                 var paramType = param.type;
                 if(paramType === "mode"){
                     targetMode = param.value;
+                    // 学習または分類を行う
+                    if(targetMode === "learn"){
+                        learnData();
+                    }else if(targetMode === "classify"){
+                        classifyData();
+                    }
 console.log("mode = " + targetMode);
                 }else if(paramType === "pattern"){
-                    if(param.value === "soft"){
-                        targetPattern = SOFT_PATTERN;
-                    }else if(param.value === "hard"){
-                        targetPattern = HARD_PATTERN;
-                    }
-                    
                     // 画面にパターンの値を通知する
                     Client.send(JSON.stringify({pattern:targetPattern}));
                 }
@@ -38,8 +39,18 @@ console.log("mode = " + targetMode);
     }
 }
 
-var HARD_PATTERN = [0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3];
-var SOFT_PATTERN = [0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.3,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5];
+var Util = require('./neural_utils.js');
+
+// 結果の配列からパターン毎の学習を行う
+function learnData(){
+
+    // データの正規化を行う
+    resultArray = Util.normalize(resultArray);
+    
+    // パターン毎の学習を行い、結果ユニットをオブジェクトに追加する
+    
+}
+
 
 var Cylon = require('cylon');
 var Neural = require('./neural.js');
@@ -49,7 +60,6 @@ var inputDataArray = [];
 var counter = 0;
 
 var PATTERN_ARRAY = [{name:"hard", pattern:HARD_PATTERN},{name:"soft", pattern:SOFT_PATTERN}];
-Neural.initialize(10);
 
 Cylon.robot({
 	connections: { arduino:{adaptor: 'firmata', port: '/dev/ttyACM0'}},
@@ -71,27 +81,12 @@ var actionFunction = function(my){
 	// 0.3秒後に圧力データを測りデータを保持する
 	setTimeout(measurePressure, 300, my);
 
-	if(counter === 10){
-	 //console.log("inputDataArray" + inputDataArray);
-	 if(targetMode === "learn"){
-	    console.log("learn start");
-	    Client.send(JSON.stringify({message:"Learn Start!!"}));
-	     Neural.learn(inputDataArray, targetPattern);
-	    console.log("learn end");
-	    Client.send(JSON.stringify({message:"Learn End!!"}));
-	 }else if(targetMode === "classify"){
-        console.log("classify start");
-        Client.send(JSON.stringify({message:"Classify Start!!"}));
-	     var result = Neural.classify(inputDataArray, PATTERN_ARRAY);
-        console.log("classify end");
-        console.log("result = " + JSON.stringify(result));
-        Client.send(JSON.stringify({message:"Classify End!!"}));
-        // 画面に結果を通知する
-        Client.send(JSON.stringify(result));
-	 }
-	 inputDataArray = [];
-	 counter = 0;
-	}
+    if(counter === 10){
+        // 測定値を結果配列に格納する
+        resultArray.push({pattern:targetPattern, data:inputDataArray});
+        inputDataArray = [];
+        counter = 0;
+    }
 	//console.log("pressure = " + pressureValue);
 };
 
@@ -99,8 +94,8 @@ function measurePressure(my){
 	pressureValue = my.pressureSensor.analogRead();
 	if(pressureValue != 0){
 	console.log("bend = " + bendValue + " pressure = " + pressureValue);
-		inputDataArray.push(bendValue/300);
-		inputDataArray.push(pressureValue/100);
+	    // 測定値を退避
+		inputDataArray.push({bend:bendValue,pressure:pressureValue});
 		// モニタに曲値と圧力値を送信する
 		Client.send(JSON.stringify({bend:bendValue,pressure:pressureValue}));
 		counter ++;

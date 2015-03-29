@@ -100,7 +100,9 @@ function calc_unit(temp){
 
 function initialize_unit(dataSize){
 
-    UNIT_SIZE = dataSize * 2;
+    // ユニット配列を初期化する
+    unit = [];
+    UNIT_SIZE = dataSize;
 
     var tempArray = [];
     for(var i = 0; i < LAYER_SIZE; i++){
@@ -187,6 +189,32 @@ console.log("classify end");
 
    return resultObj;
 
+}
+
+function output(){
+
+    // 今までの重みで出力を計算する。
+    for(var i = 0; i < UNIT_SIZE; i++){
+        unit[0][i].value = input_data[i];
+    }
+    
+    calc_all();
+
+    // 計算結果を配列に変換し出力する
+    var target_array = [];
+    for(var k = 0; k < UNIT_SIZE; k++){
+        target_array.push(unit[LAYER_SIZE - 1][k].value);
+    }
+
+    return target_array;
+}
+
+function getUnit(){
+    return unit;
+}
+
+function setUnit(paramUnit){
+    unit = paramUnit;
 }
 
 module.exports = {
