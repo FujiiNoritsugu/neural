@@ -191,11 +191,11 @@ console.log("classify end");
 
 }
 
-function output(){
+function output(param_input){
 
     // 今までの重みで出力を計算する。
     for(var i = 0; i < UNIT_SIZE; i++){
-        unit[0][i].value = input_data[i];
+        unit[0][i].value = param_input[i];
     }
     
     calc_all();
@@ -220,5 +220,8 @@ function setUnit(paramUnit){
 module.exports = {
   initialize: initialize_unit,
   learn: learn,
-  classify: classify
+  classify: classify,
+  getUnit:getUnit,
+  setUnit:setUnit,
+  output:output
 }

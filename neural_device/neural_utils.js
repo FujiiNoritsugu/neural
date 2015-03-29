@@ -1,8 +1,5 @@
 var UnderScore = require('underscore');
 
-var test_data = [{pattern:"soft", data:[{bend:1,pressure:10},{bend:2,pressure:9},{bend:3,pressure:8}]},
-                 {pattern:"hard", data:[{bend:4,pressure:7},{bend:5,pressure:6},{bend:6,pressure:5}]}];
-
 // データの正規化を行う
 var normalize = (function (){
 
@@ -11,9 +8,9 @@ var normalize = (function (){
     var bend_min = Infinity;
     var pressure_max = -Infinity;
     var pressure_min = Infinity;
-
+    var result_data;
+    
     var calcMaxMin = function(temp){
-                             //console.log("bend = " + temp.bend);
                              if(bend_max < temp.bend){bend_max = temp.bend;}
                              if(bend_min > temp.bend){bend_min = temp.bend;}
                              if(pressure_max < temp.pressure){pressure_max = temp.pressure;}
@@ -21,8 +18,13 @@ var normalize = (function (){
                           };
                           
     var normalizeData = function(temp){
-                            temp.bend = calcNormalize(temp.bend, bend_max, bend_min);
-                            temp.pressure = calcNormalize(temp.pressure, pressure_max, pressure_min);
+                            if(UnderScore.isUndefined(result_data[temp.pattern]){
+                                result_data[temp.pattern] = {};
+                                result_data[temp.pattern].input_data = [];
+                                result_data[temp.pattern].output_data = [];
+                            }
+                            result_data[temp.pattern].input_data.push(calcNormalize(temp.bend, bend_max, bend_min));
+                            result_data[temp.pattern].output_data.push(temp.pressure = calcNormalize(temp.pressure, pressure_max, pressure_min));
                         };
     
     var calcNormalize = function(data, max, min){
@@ -42,12 +44,22 @@ var normalize = (function (){
                         console.log("bend = " + temp.bend + " pressure = " + temp.pressure);
                     };
     
-    return function(input_data){
+    return {
+            forLearn:function(input_data){
+                result_data = {};
                 array_data = input_data;
                 applyData(calcMaxMin);
                 applyData(normalizeData);
                 applyData(printData);
-                return array_data;
+                return result_data;
+                },
+            forClassify:function(input_data){
+                result_data = {};
+                array_data = input_data;
+                applyData(normalizeData);
+                return result_data;
+            }
+           
            };
 })();
 

@@ -12,7 +12,8 @@ function onConnect(){
 
 var targetPattern;
 var targetMode;
-var resultArray;
+var measureArray;
+var classifyArray;
 
 function onMessage(message){
     var paramArray = JSON.parse(message);
@@ -40,15 +41,42 @@ console.log("mode = " + targetMode);
 }
 
 var Util = require('./neural_utils.js');
-
+var resultObj;
 // 結果の配列からパターン毎の学習を行う
 function learnData(){
 
-    // データの正規化を行う
-    resultArray = Util.normalize(resultArray);
+    // データの正規化と結果オブジェクトの作成を行う
+    resultObj = Util.normalize.forLearn(measureArray);
     
     // パターン毎の学習を行い、結果ユニットをオブジェクトに追加する
+    UnderScore.each(resultObj, 
+        function (value, key, list) {
+            // データ数10で初期化
+            Neural.initialze(10);
+            // 入力データと出力データで学習
+            Neural.lean(value.input_data, value.output_data);
+            // 結果ユニットをオブジェクトに追加
+            value.unit = Neural.getUnit();
+        }
+    );
+}
+
+// データの分類
+function classifyData(){
+    // 学習用データを下に正規化を行う
+    var classifyObj = Util.normalizeClassify(classifyArray);
     
+    // 分類を行う
+    var outputObj = [];
+        UnderScore.each(resultObj, 
+        function (value, key, list) {
+            // 結果ユニットをオブジェクトに設定
+            Neural.setUnit(value.unit);
+            // 設定したユニットでパターン毎の分類データの出力を行い二乗和誤差を計算する
+            Util.calcSqare(value.output, Neural.output(classifyObj.input_data));
+        }
+
+    );
 }
 
 
@@ -58,8 +86,6 @@ var bendValue;
 var pressureValue;
 var inputDataArray = [];
 var counter = 0;
-
-var PATTERN_ARRAY = [{name:"hard", pattern:HARD_PATTERN},{name:"soft", pattern:SOFT_PATTERN}];
 
 Cylon.robot({
 	connections: { arduino:{adaptor: 'firmata', port: '/dev/ttyACM0'}},
@@ -83,7 +109,13 @@ var actionFunction = function(my){
 
     if(counter === 10){
         // 測定値を結果配列に格納する
-        resultArray.push({pattern:targetPattern, data:inputDataArray});
+        
+        if(targetMode === "learn"){
+            measureArray.push({pattern:targetPattern, data:inputDataArray});
+        }else if(targetMode == "classify"){
+        
+            classifyArray.push({pattern:targetMode, data:inputDataArray});
+        }
         inputDataArray = [];
         counter = 0;
     }
