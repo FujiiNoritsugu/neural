@@ -67,3 +67,19 @@ module.exports = {
   normalize: normalize
 }
 
+var calcSquare = function (array1, array2){
+    
+    return UnderScore.reduce(UnderScore.map(UnderScore.zip(array1,array1),
+        function (obj){
+            return calcSquareUnit(obj[0],obj[1])
+        }
+       ),
+       function (x, y){
+        return x + y;
+       }
+    )
+}
+
+var calcSquareUnit = function(x,y){
+    return Math.pow((x - y),2);
+}

@@ -73,7 +73,7 @@ function classifyData(){
             // 結果ユニットをオブジェクトに設定
             Neural.setUnit(value.unit);
             // 設定したユニットでパターン毎の分類データの出力を行い二乗和誤差を計算する
-            Util.calcSqare(value.output, Neural.output(classifyObj.input_data));
+            value.square = Util.calcSquare(value.output, Neural.output(classifyObj.input_data));
         }
 
     );
