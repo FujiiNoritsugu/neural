@@ -28,7 +28,7 @@ function onMessage(message){
                     if(targetMode === "learn"){
                         learnData();
                     }else if(targetMode === "classify"){
-                        classifyData();
+                        Client.send(classifyData());
                     }
 console.log("mode = " + targetMode);
                 }else if(paramType === "pattern"){
@@ -66,17 +66,23 @@ function classifyData(){
     // 学習用データを下に正規化を行う
     var classifyObj = Util.normalizeClassify(classifyArray);
     
+    var targetPattern = null;
+    var minSquare = Math.Infinity;
+    
     // 分類を行う
-    var outputObj = [];
-        UnderScore.each(resultObj, 
+    UnderScore.each(resultObj, 
         function (value, key, list) {
             // 結果ユニットをオブジェクトに設定
             Neural.setUnit(value.unit);
             // 設定したユニットでパターン毎の分類データの出力を行い二乗和誤差を計算する
             value.square = Util.calcSquare(value.output, Neural.output(classifyObj.input_data));
+            if(value.square < minSquare){
+                targetPattern = key;
+            }
         }
-
     );
+   
+   return targetPattern;
 }
 
 

@@ -18,7 +18,7 @@ var normalize = (function (){
                           };
                           
     var normalizeData = function(temp){
-                            if(UnderScore.isUndefined(result_data[temp.pattern]){
+                            if(UnderScore.isUndefined(result_data[temp.pattern])){
                                 result_data[temp.pattern] = {};
                                 result_data[temp.pattern].input_data = [];
                                 result_data[temp.pattern].output_data = [];
@@ -63,13 +63,9 @@ var normalize = (function (){
            };
 })();
 
-module.exports = {
-  normalize: normalize
-}
-
 var calcSquare = function (array1, array2){
     
-    return UnderScore.reduce(UnderScore.map(UnderScore.zip(array1,array1),
+    return UnderScore.reduce(UnderScore.map(UnderScore.zip(array1,array2),
         function (obj){
             return calcSquareUnit(obj[0],obj[1])
         }
@@ -83,3 +79,9 @@ var calcSquare = function (array1, array2){
 var calcSquareUnit = function(x,y){
     return Math.pow((x - y),2);
 }
+
+module.exports = {
+  normalize: normalize,
+  calcSquare:calcSquare
+}
+
