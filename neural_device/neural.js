@@ -1,3 +1,5 @@
+function createNeural(dataSize){
+
 var LAYER_SIZE = 20;
 var UNIT_SIZE;
 var SIGMOID_PARAM = 0.3;
@@ -7,14 +9,46 @@ var INITIAL_INPUT_WEIGHT = 0.0;
 var unit = [];
 var counter = 0;
 
-function learn(input_data, output_data){
+initialize_unit(dataSize);
 
-    while(true){
-        calc_error(input_data, output_data);
-        back_propagation(); 
-        if(check_loop(output_data))break;
-   }
+function initialize_unit(dataSize){
 
+    // ユニット配列を初期化する
+    unit = [];
+    UNIT_SIZE = dataSize;
+
+    var tempArray = [];
+    for(var i = 0; i < LAYER_SIZE; i++){
+     for(var j = 0; j < UNIT_SIZE; j++){
+        tempArray.push({
+                         value:0.0,
+                         output_unit:[],
+                         input_unit:[],
+                         input_weight:[],
+                         sigma:0.0
+                       });
+     }
+     unit.push(tempArray);
+     tempArray = [];
+    }
+    
+    for(var i = 0; i < LAYER_SIZE; i++){
+        for(var j = 0; j < UNIT_SIZE; j++){
+            
+            if( i != LAYER_SIZE - 1){
+             unit[i][j].output_unit = unit[i+1];
+            }
+            
+            if( i != 0){
+             unit[i][j].input_unit = unit[i-1];
+            }
+            
+            for(var k = 0; k < LAYER_SIZE; k++){
+                 unit[i][j].input_weight[k] = INITIAL_INPUT_WEIGHT;
+            }
+
+        }
+    }
 }
 
 function check_loop(output_data){
@@ -98,130 +132,39 @@ function calc_unit(temp){
     return result;
 }
 
-function initialize_unit(dataSize){
+return {
+    learn : function(input_data, output_data){
 
-    // ユニット配列を初期化する
-    unit = [];
-    UNIT_SIZE = dataSize;
-
-    var tempArray = [];
-    for(var i = 0; i < LAYER_SIZE; i++){
-     for(var j = 0; j < UNIT_SIZE; j++){
-        tempArray.push({
-                         value:0.0,
-                         output_unit:[],
-                         input_unit:[],
-                         input_weight:[],
-                         sigma:0.0
-                       });
-     }
-     unit.push(tempArray);
-     tempArray = [];
-    }
-    
-    for(var i = 0; i < LAYER_SIZE; i++){
-        for(var j = 0; j < UNIT_SIZE; j++){
-            
-            if( i != LAYER_SIZE - 1){
-             unit[i][j].output_unit = unit[i+1];
-            }
-            
-            if( i != 0){
-             unit[i][j].input_unit = unit[i-1];
-            }
-            
-            for(var k = 0; k < LAYER_SIZE; k++){
-                 unit[i][j].input_weight[k] = INITIAL_INPUT_WEIGHT;
-            }
-
+        while(true){
+            calc_error(input_data, output_data);
+            back_propagation(); 
+            if(check_loop(output_data))break;
         }
-    }
-}
 
-function classify(input_data, label_array){
+    },
 
-console.log("classify start");
+    output : function (param_input){
 
-    var resultObj = {};
-    // 今までの重みで出力を計算する。
-    for(var i = 0; i < UNIT_SIZE; i++){
-        unit[0][i].value = input_data[i];
-    }
+        // 今までの重みで出力を計算する。
+        for(var i = 0; i < UNIT_SIZE; i++){
+            unit[0][i].value = param_input[i];
+        }
     
-    calc_all();
+        calc_all();
 
-    // 計算結果を配列に変換する
-    var target_array = [];
-    for(var k = 0; k < UNIT_SIZE; k++){
-        target_array.push(unit[LAYER_SIZE - 1][k].value);
+        // 計算結果を配列に変換し出力する
+        var target_array = [];
+        for(var k = 0; k < UNIT_SIZE; k++){
+            target_array.push(unit[LAYER_SIZE - 1][k].value);
+        }
+
+        return target_array;
     }
 
-    // 結果に出力を設定
-    resultObj.result_out = target_array;
-   // 二乗和誤差で分類する
-   var label_count = label_array.length;
-   var target_label = label_array[0].name;
-   var min_sum_error = 20;
-console.log("classify label_count =" + label_count);
-   for(var i = 0; i < label_count; i ++){
-    var sum_error = 0;
-    var label_pattern = label_array[i].pattern;
-     for(var j = 0; j < UNIT_SIZE; j++){
-        sum_error += Math.pow((target_array[j] - label_pattern[j]), 2);
-     }
+};
 
-    // ラベル毎の二乗和誤差を格納
-    compare_error = "compare_"+label_array[i].name;
-    resultObj[compare_error] = sum_error;
-
-console.log("classify sum_error = " + sum_error);
-    if(sum_error < min_sum_error){
-     min_sum_error = sum_error;
-     target_label = label_array[i].name;
-    }
-
-   }
-   
-   resultObj.result_label = target_label;
-   resultObj.result_sum_error = min_sum_error;
-
-console.log("classify end");
-
-   return resultObj;
-
-}
-
-function output(param_input){
-
-    // 今までの重みで出力を計算する。
-    for(var i = 0; i < UNIT_SIZE; i++){
-        unit[0][i].value = param_input[i];
-    }
-    
-    calc_all();
-
-    // 計算結果を配列に変換し出力する
-    var target_array = [];
-    for(var k = 0; k < UNIT_SIZE; k++){
-        target_array.push(unit[LAYER_SIZE - 1][k].value);
-    }
-
-    return target_array;
-}
-
-function getUnit(){
-    return unit;
-}
-
-function setUnit(paramUnit){
-    unit = paramUnit;
 }
 
 module.exports = {
-  initialize: initialize_unit,
-  learn: learn,
-  classify: classify,
-  getUnit:getUnit,
-  setUnit:setUnit,
-  output:output
+  createNeural: createNeural
 }

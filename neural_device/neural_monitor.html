@@ -71,6 +71,7 @@
    </table>
   </div>
 <script src="/socket.io/socket.io.js"></script>
+<script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
 <script>
 
     // 散布図エリアとパターンエリアの枠線を描く
@@ -101,6 +102,9 @@ function onMessage (message){
     try{
         var param = JSON.parse(message);
         messageArea.innerHTML = message;
+        if(!_.isUndefined(param.normalized_data){
+            
+        }
         if(param.bend != undefined && param.pressure != undefined){
             drawData(param);
         }

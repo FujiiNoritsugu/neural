@@ -24,7 +24,7 @@ var normalize = (function (){
                                 result_data[temp.pattern].output_data = [];
                             }
                             result_data[temp.pattern].input_data.push(calcNormalize(temp.bend, bend_max, bend_min));
-                            result_data[temp.pattern].output_data.push(temp.pressure = calcNormalize(temp.pressure, pressure_max, pressure_min));
+                            result_data[temp.pattern].output_data.push(calcNormalize(temp.pressure, pressure_max, pressure_min));
                         };
     
     var calcNormalize = function(data, max, min){

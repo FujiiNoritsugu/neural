@@ -40,23 +40,28 @@ console.log("mode = " + targetMode);
     }
 }
 
+var Neural = require('./neural.js');
 var Util = require('./neural_utils.js');
 var resultObj;
+
 // 結果の配列からパターン毎の学習を行う
 function learnData(){
 
     // データの正規化と結果オブジェクトの作成を行う
     resultObj = Util.normalize.forLearn(measureArray);
     
+    // 正規化したデータを画面で描画させる
+    Client.send(JSON.stringify({normalized_data:resultObj}));
+    
     // パターン毎の学習を行い、結果ユニットをオブジェクトに追加する
     UnderScore.each(resultObj, 
         function (value, key, list) {
-            // データ数10で初期化
-            Neural.initialze(10);
+            // データ数10でニューラルオブジェクトを作成
+            var neural = Neural.createNeural(10);
             // 入力データと出力データで学習
-            Neural.lean(value.input_data, value.output_data);
-            // 結果ユニットをオブジェクトに追加
-            value.unit = Neural.getUnit();
+            neural.lean(value.input_data, value.output_data);
+            // ニューラルオブジェクトを追加
+            value.neural = neural;
         }
     );
 }
@@ -72,10 +77,8 @@ function classifyData(){
     // 分類を行う
     UnderScore.each(resultObj, 
         function (value, key, list) {
-            // 結果ユニットをオブジェクトに設定
-            Neural.setUnit(value.unit);
             // 設定したユニットでパターン毎の分類データの出力を行い二乗和誤差を計算する
-            value.square = Util.calcSquare(value.output, Neural.output(classifyObj.input_data));
+            value.square = Util.calcSquare(value.output, value.neural.output(classifyObj.input_data));
             if(value.square < minSquare){
                 targetPattern = key;
             }
@@ -87,7 +90,6 @@ function classifyData(){
 
 
 var Cylon = require('cylon');
-var Neural = require('./neural.js');
 var bendValue;
 var pressureValue;
 var inputDataArray = [];
