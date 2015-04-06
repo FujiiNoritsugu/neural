@@ -9,6 +9,7 @@ var normalize = (function (){
     var pressure_max = -Infinity;
     var pressure_min = Infinity;
     var result_data;
+    var current_pattern;
     
     var calcMaxMin = function(temp){
                              if(bend_max < temp.bend){bend_max = temp.bend;}
@@ -18,13 +19,19 @@ var normalize = (function (){
                           };
                           
     var normalizeData = function(temp){
-                            if(UnderScore.isUndefined(result_data[temp.pattern])){
-                                result_data[temp.pattern] = {};
-                                result_data[temp.pattern].input_data = [];
-                                result_data[temp.pattern].output_data = [];
+                            // 結果オブジェクトにパターン毎のオブジェクトを追加する
+                            if(UnderScore.isUndefined(result_data[current_pattern])){
+                                result_data[current_pattern] = {};
+                                result_data[current_pattern].data = [];
+                                result_data[current_pattern].input_data = [];
+                                result_data[current_pattern].output_data = [];
                             }
-                            result_data[temp.pattern].input_data.push(calcNormalize(temp.bend, bend_max, bend_min));
-                            result_data[temp.pattern].output_data.push(calcNormalize(temp.pressure, pressure_max, pressure_min));
+                            var normalized_bend = calcNormalize(temp.bend, bend_max, bend_min);
+                            var normalized_pressure = calcNormalize(temp.pressure, pressure_max, pressure_min);
+                            
+                            result_data[current_pattern].data.push({bend:normalized_bend, pressure:normalized_pressure});
+                            result_data[current_pattern].input_data.push(normalized_bend);
+                            result_data[current_pattern].output_data.push(normalized_pressure);
                         };
     
     var calcNormalize = function(data, max, min){
@@ -35,6 +42,8 @@ var normalize = (function (){
                             UnderScore.each(array_data,
                                     function(obj){
                                         //console.log("pattern = " + obj.pattern);
+                                        //result_data.push({pattern:obj.pattern, data:[]})
+                                        current_pattern = obj.pattern;
                                         UnderScore.each(obj.data, func);
                                     }
                             );

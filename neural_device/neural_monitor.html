@@ -41,10 +41,10 @@
             </span>
         </td>
         <td>
-            <canvas id="input_scatter" width="400" height="400"></canvas>
+            <canvas id="label_pattern" width="410" height="410"></canvas>
         </td>
         <td>
-            <canvas id="label_pattern" width="400" height="400"></canvas>
+            <canvas id="input_scatter" width="410" height="410"></canvas>
         </td>
     </tr>
     <tr>
@@ -77,11 +77,11 @@
     // éUïzê}ÉGÉäÉAÇ∆ÉpÉ^Å[ÉìÉGÉäÉAÇÃògê¸Çï`Ç≠
     var inputArea = document.getElementById('input_scatter');
     inputAreaContext = inputArea.getContext('2d');
-    inputAreaContext.rect(0, 0, 400, 400);
+    inputAreaContext.rect(0, 0, 405, 405);
     inputAreaContext.stroke();
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
-    patternAreaContext.rect(0, 0, 400, 400);
+    patternAreaContext.rect(0, 0, 405, 405);
     patternAreaContext.stroke();
 
     var messageArea = document.getElementById('messageArea');
@@ -102,17 +102,63 @@ function onMessage (message){
     try{
         var param = JSON.parse(message);
         messageArea.innerHTML = message;
-        if(!_.isUndefined(param.normalized_data){
-            
+        if(!_.isUndefined(param.normalized_data)){
+            _.each(param.normalized_data, 
+                function(value, key, list){
+                    drawData_for_normalized(key, value);
+                }
+            );
+           //drawData_for_normalized(param.normalized_data);
+        }else if(!_.isUndefined(param.measure_data)){
+            drawMeasureData(param.measure_data);
         }
         if(param.bend != undefined && param.pressure != undefined){
             drawData(param);
         }
-        if(param.pattern != undefined){
-            drawPattern(param.pattern);
-        }
     }catch(e){
         alert(e);
+    }
+}
+
+var data_counter = 1;
+
+function drawMeasureData(measure_data){
+    var measureValue = "data" + data_counter + " bend = " + measure_data.bend + " pressure = " + measure_data.pressure;
+
+    var patternArea = document.getElementById('label_pattern');
+    patternAreaContext = patternArea.getContext('2d');
+    
+    patternAreaContext.fillStyle = 'black';
+    patternAreaContext.font = 'bold 20pt Calibri';
+    patternAreaContext.fillText(measureValue,  40, data_counter * 35);
+    
+    data_counter ++;
+}
+
+function drawData_for_normalized(key, value){
+    var canvas = document.getElementById('input_scatter');
+    var fontColor = null;
+    if(key === "soft"){
+        fontColor = "blue";
+    } else if(key === "hard"){
+        fontColor = "red";
+    } else {
+        fontColor = "yellow";
+    }
+    
+    if (canvas.getContext) {
+        var context = canvas.getContext('2d');
+        //ã»Ç∞Ç∆à≥óÕÇ≈éUïzê}Çï`Ç≠
+        _.each(value.data, 
+            function(param){
+                var arcX = Math.round(param.bend * 400) + 5;
+                var arcY = 405 - Math.round(param.pressure * 400);
+                context.beginPath();
+                context.arc(arcX, arcY, 5, 0, Math.PI*2, false);
+                context.fillStyle = fontColor;
+                context.fill();
+            }
+         );
     }
 }
 
@@ -137,25 +183,6 @@ function drawData(param){
         context.fillStyle = fontColor;
         context.fill();
     }
-}   
-
-function drawPattern(pattern){
-    var patternArea = document.getElementById('label_pattern');
-    patternAreaContext = patternArea.getContext('2d');
-    patternAreaContext.clearRect(10,10,380,380);
-    for(var i = 0; i < 4; i++){
-        for(var j = 0; j < 5; j++){
-         var patternValue = pattern[i*5 + j];
-         if(patternValue == 0.5){
-            patternAreaContext.fillStyle = 'red';
-         }else if(patternValue == 0.3){
-            patternAreaContext.fillStyle = 'blue';
-         }
-         patternAreaContext.font = 'bold 20pt Calibri';
-         patternAreaContext.fillText(patternValue, (j + 1) * 60, (i + 1) * 80);
-        }
-    }
-
 }
 
 </script>

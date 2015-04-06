@@ -12,8 +12,8 @@ function onConnect(){
 
 var targetPattern;
 var targetMode;
-var measureArray;
-var classifyArray;
+var measureArray = [];
+var classifyArray = [];
 
 function onMessage(message){
     var paramArray = JSON.parse(message);
@@ -32,6 +32,8 @@ function onMessage(message){
                     }
 console.log("mode = " + targetMode);
                 }else if(paramType === "pattern"){
+                    // パターンの設定を行う
+                    targetPattern = param.value;
                     // 画面にパターンの値を通知する
                     Client.send(JSON.stringify({pattern:targetPattern}));
                 }
@@ -59,7 +61,7 @@ function learnData(){
             // データ数10でニューラルオブジェクトを作成
             var neural = Neural.createNeural(10);
             // 入力データと出力データで学習
-            neural.lean(value.input_data, value.output_data);
+            neural.learn(value.input_data, value.output_data);
             // ニューラルオブジェクトを追加
             value.neural = neural;
         }
@@ -137,7 +139,7 @@ function measurePressure(my){
 	    // 測定値を退避
 		inputDataArray.push({bend:bendValue,pressure:pressureValue});
 		// モニタに曲値と圧力値を送信する
-		Client.send(JSON.stringify({bend:bendValue,pressure:pressureValue}));
+		Client.send(JSON.stringify({measure_data:{bend:bendValue,pressure:pressureValue}}));
 		counter ++;
 	}
 
