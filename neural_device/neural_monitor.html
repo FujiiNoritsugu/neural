@@ -90,7 +90,7 @@ try{
 
 var socket = io.connect('http://192.168.1.7:8124/');
 
-socket.send(JSON.stringify([{type:"mode",value:"learn"},{type:"pattern",value:"soft"}]));
+socket.send(JSON.stringify([{type:"mode",value:"inputForLearn"},{type:"pattern",value:"soft"}]));
 
 socket.on('message', onMessage);
 
@@ -128,10 +128,19 @@ function drawMeasureData(measure_data){
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
     
-    patternAreaContext.fillStyle = 'black';
+    if(patternArea === "soft"){
+        patternAreaContext.fillStyle = 'blue';
+    } else if(patternArea === "soft"){
+        patternAreaContext.fillStyle = 'red';
+    }
+    
+
     patternAreaContext.font = 'bold 20pt Calibri';
     patternAreaContext.fillText(measureValue,  40, data_counter * 35);
     
+    if(data_counter == 10){
+        data_counter = 0;
+    }
     data_counter ++;
 }
 

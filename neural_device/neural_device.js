@@ -27,6 +27,7 @@ function onMessage(message){
                     // 学習または分類を行う
                     if(targetMode === "learn"){
                         learnData();
+                        targetMode = "inputForClassify";
                     }else if(targetMode === "classify"){
                         Client.send(classifyData());
                     }
@@ -71,7 +72,7 @@ function learnData(){
 // データの分類
 function classifyData(){
     // 学習用データを下に正規化を行う
-    var classifyObj = Util.normalizeClassify(classifyArray);
+    var classifyObj = Util.normalize.forClassify(classifyArray);
     
     var targetPattern = null;
     var minSquare = Math.Infinity;
@@ -80,7 +81,7 @@ function classifyData(){
     UnderScore.each(resultObj, 
         function (value, key, list) {
             // 設定したユニットでパターン毎の分類データの出力を行い二乗和誤差を計算する
-            value.square = Util.calcSquare(value.output, value.neural.output(classifyObj.input_data));
+            value.square = Util.calcSquare(value.output_data, value.neural.output(classifyObj.input_data));
             if(value.square < minSquare){
                 targetPattern = key;
             }
@@ -120,9 +121,9 @@ var actionFunction = function(my){
     if(counter === 10){
         // 測定値を結果配列に格納する
         
-        if(targetMode === "learn"){
+        if(targetMode === "inputForLearn"){
             measureArray.push({pattern:targetPattern, data:inputDataArray});
-        }else if(targetMode == "classify"){
+        }else if(targetMode == "inputForClassify"){
         
             classifyArray.push({pattern:targetMode, data:inputDataArray});
         }
