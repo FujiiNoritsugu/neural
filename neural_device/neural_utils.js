@@ -1,7 +1,7 @@
 var UnderScore = require('underscore');
 
 // データの正規化を行う
-var normalize = (function (){
+var normalize = function (){
 
     var array_data;
     var bend_max = -Infinity;
@@ -41,8 +41,6 @@ var normalize = (function (){
     var applyData = function(func){
                             UnderScore.each(array_data,
                                     function(obj){
-                                        //console.log("pattern = " + obj.pattern);
-                                        //result_data.push({pattern:obj.pattern, data:[]})
                                         current_pattern = obj.pattern;
                                         UnderScore.each(obj.data, func);
                                     }
@@ -54,23 +52,26 @@ var normalize = (function (){
                     };
     
     return {
-            forLearn:function(input_data){
+            forLearn:function(param_data){
                 result_data = {};
-                array_data = input_data;
+                array_data = param_data;
                 applyData(calcMaxMin);
                 applyData(normalizeData);
                 applyData(printData);
                 return result_data;
                 },
-            forClassify:function(input_data){
+            forClassify:function(param_data){
                 result_data = {};
-                array_data = input_data;
+                array_data = param_data;
                 applyData(normalizeData);
                 return result_data;
+            },
+            classifyNormalize:function(param_data){
+                return{bend:calcNormalize(temp.bend, bend_max, bend_min),pressure:calcNormalize(temp.pressure, pressure_max, pressure_min)};
             }
            
            };
-})();
+}
 
 var calcSquare = function (array1, array2){
     

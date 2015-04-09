@@ -108,7 +108,6 @@ function onMessage (message){
                     drawData_for_normalized(key, value);
                 }
             );
-           //drawData_for_normalized(param.normalized_data);
         }else if(!_.isUndefined(param.measure_data)){
             drawMeasureData(param.measure_data);
         }
@@ -123,23 +122,48 @@ function onMessage (message){
 var data_counter = 1;
 
 function drawMeasureData(measure_data){
-    var measureValue = "data" + data_counter + " bend = " + measure_data.bend + " pressure = " + measure_data.pressure;
 
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
-    
-    if(patternArea === "soft"){
+    var offset = 0;
+    if(pattern === "soft"){
+        offset = 5;
         patternAreaContext.fillStyle = 'blue';
-    } else if(patternArea === "soft"){
+    } else if(pattern === "hard"){
+        offset = 135;
         patternAreaContext.fillStyle = 'red';
+    } else if(pattern === "classify"){
+        offset = 265;
+        patternAreaContext.fillStyle = 'yellow';
     }
     
+    var measureValue = pattern + data_counter + "(" + measure_data.bend + "," + measure_data.pressure + ")";
 
-    patternAreaContext.font = 'bold 20pt Calibri';
-    patternAreaContext.fillText(measureValue,  40, data_counter * 35);
+    patternAreaContext.font = 'bold 10pt Calibri';
+    patternAreaContext.fillText(measureValue, offset, data_counter * 35);
     
     if(data_counter == 10){
         data_counter = 0;
+        if(pattern === "soft"){
+            alert("change another object");
+            pattern = "hard";
+            if(socket != null){
+                socket.send(JSON.stringify([{type:"pattern",value:"hard"}]));
+            }
+        } else if(pattern === "hard"){
+            alert("change classify object");
+            pattern = "classify";
+            if(socket != null){
+                socket.send(JSON.stringify([{type:"mode",value:"learn"}]));
+            }
+        } else if(pattern === "classify"){
+            alert("start classify");
+            pattern = "";
+            if(socket != null){
+                socket.send(JSON.stringify([{type:"mode",value:"classify"}]));
+            }
+        }
+
     }
     data_counter ++;
 }

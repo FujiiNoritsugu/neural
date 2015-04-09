@@ -45,13 +45,14 @@ console.log("mode = " + targetMode);
 
 var Neural = require('./neural.js');
 var Util = require('./neural_utils.js');
+var Normalize = Util.normalize();
 var resultObj;
 
 // 結果の配列からパターン毎の学習を行う
 function learnData(){
 
     // データの正規化と結果オブジェクトの作成を行う
-    resultObj = Util.normalize.forLearn(measureArray);
+    resultObj = Normalize.forLearn(measureArray);
     
     // 正規化したデータを画面で描画させる
     Client.send(JSON.stringify({normalized_data:resultObj}));
@@ -71,9 +72,11 @@ function learnData(){
 
 // データの分類
 function classifyData(){
+console.log("classifyArray = " + JSON.stringify(classifyArray));
     // 学習用データを下に正規化を行う
-    var classifyObj = Util.normalize.forClassify(classifyArray);
-    
+    var classifyObj = Normalize.forClassify(classifyArray);
+
+console.log("classifyObj" + JSON.stringify(classifyObj));
     var targetPattern = null;
     var minSquare = Math.Infinity;
     
@@ -81,7 +84,7 @@ function classifyData(){
     UnderScore.each(resultObj, 
         function (value, key, list) {
             // 設定したユニットでパターン毎の分類データの出力を行い二乗和誤差を計算する
-            value.square = Util.calcSquare(value.output_data, value.neural.output(classifyObj.input_data));
+            value.square = Util.calcSquare(value.output_data, value.neural.output(classifyObj.classify.input_data));
             if(value.square < minSquare){
                 targetPattern = key;
             }
@@ -125,7 +128,7 @@ var actionFunction = function(my){
             measureArray.push({pattern:targetPattern, data:inputDataArray});
         }else if(targetMode == "inputForClassify"){
         
-            classifyArray.push({pattern:targetMode, data:inputDataArray});
+            classifyArray.push({pattern:"classify", data:inputDataArray});
         }
         inputDataArray = [];
         counter = 0;
@@ -135,7 +138,8 @@ var actionFunction = function(my){
 
 function measurePressure(my){
 	pressureValue = my.pressureSensor.analogRead();
-	if(pressureValue != 0){
+	// 測定値30以下は異常値として省く
+	if(pressureValue > 30){
 	console.log("bend = " + bendValue + " pressure = " + pressureValue);
 	    // 測定値を退避
 		inputDataArray.push({bend:bendValue,pressure:pressureValue});
