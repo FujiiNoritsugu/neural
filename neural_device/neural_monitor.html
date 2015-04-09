@@ -110,9 +110,8 @@ function onMessage (message){
             );
         }else if(!_.isUndefined(param.measure_data)){
             drawMeasureData(param.measure_data);
-        }
-        if(param.bend != undefined && param.pressure != undefined){
-            drawData(param);
+        }else if(!_.isUndefined(param.classify_data)){
+            drawData_for_classify(param.classify_data);
         }
     }catch(e){
         alert(e);
@@ -139,7 +138,7 @@ function drawMeasureData(measure_data){
     
     var measureValue = pattern + data_counter + "(" + measure_data.bend + "," + measure_data.pressure + ")";
 
-    patternAreaContext.font = 'bold 10pt Calibri';
+    patternAreaContext.font = 'bold 13pt Calibri';
     patternAreaContext.fillText(measureValue, offset, data_counter * 35);
     
     if(data_counter == 10){
@@ -195,22 +194,15 @@ function drawData_for_normalized(key, value){
     }
 }
 
-function drawData(param){
+function drawData_for_classify(param){
     var canvas = document.getElementById('input_scatter');
-    var fontColor = null;
-    if(pattern === "soft"){
-        fontColor = "blue";
-    } else if(pattern === "hard"){
-        fontColor = "red";
-    } else {
-        fontColor = "yellow";
-    }
+    var fontColor = "yellow";
     
     if (canvas.getContext) {
         var context = canvas.getContext('2d');
         //ã»Ç∞Ç∆à≥óÕÇ≈éUïzê}Çï`Ç≠
-        var arcX = Math.round((270 - param.bend) * (400/(270-190)));
-        var arcY = 400 - Math.round(param.pressure * (400/850));
+        var arcX = Math.round(param.bend * 400) + 5;
+        var arcY = 405 - Math.round(param.pressure * 400);
         context.beginPath();
         context.arc(arcX, arcY, 5, 0, Math.PI*2, false);
         context.fillStyle = fontColor;

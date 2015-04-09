@@ -72,19 +72,21 @@ function learnData(){
 
 // データの分類
 function classifyData(){
-console.log("classifyArray = " + JSON.stringify(classifyArray));
-    // 学習用データを下に正規化を行う
-    var classifyObj = Normalize.forClassify(classifyArray);
 
-console.log("classifyObj" + JSON.stringify(classifyObj));
     var targetPattern = null;
     var minSquare = Math.Infinity;
-    
+    var classifyData = Util.getClassifyData(classifyArray.data);
+    var classifyInputData = classifyData.inputData;
+    var classifyOutputData = classifyData.outputData;
+
+console.log("classifyInputData = " + JSON.stringify(classifyInputData));
+console.log("classifyOutputData = " + JSON.stringify(classifyOutputData));
+
     // 分類を行う
     UnderScore.each(resultObj, 
         function (value, key, list) {
-            // 設定したユニットでパターン毎の分類データの出力を行い二乗和誤差を計算する
-            value.square = Util.calcSquare(value.output_data, value.neural.output(classifyObj.classify.input_data));
+            // 設定したユニットでパターン毎の分類データの出力を行い、実際の出力データとの二乗和誤差を計算する
+            value.square = Util.calcSquare(classifyOutputData, value.neural.output(classifyInputData));
             if(value.square < minSquare){
                 targetPattern = key;
             }
@@ -93,7 +95,6 @@ console.log("classifyObj" + JSON.stringify(classifyObj));
    
    return targetPattern;
 }
-
 
 var Cylon = require('cylon');
 var bendValue;
@@ -140,12 +141,20 @@ function measurePressure(my){
 	pressureValue = my.pressureSensor.analogRead();
 	// 測定値30以下は異常値として省く
 	if(pressureValue > 30){
-	console.log("bend = " + bendValue + " pressure = " + pressureValue);
-	    // 測定値を退避
-		inputDataArray.push({bend:bendValue,pressure:pressureValue});
-		// モニタに曲値と圧力値を送信する
-		Client.send(JSON.stringify({measure_data:{bend:bendValue,pressure:pressureValue}}));
-		counter ++;
+        console.log("bend = " + bendValue + " pressure = " + pressureValue);
+        var measureObj = {bend:bendValue,pressure:pressureValue};
+        // モニタに曲値と圧力値を送信する
+        Client.send(JSON.stringify({measure_data:measureObj}));
+        
+        // 分類用では学習データを下にデータを変換したデータも送信する
+	    if(targetMode === "inputForClassify"){
+            measureObj = Normalize.changeDataForClassify(measureObj);
+            Client.send(JSON.stringify({classify_data:measureObj}));
+        }
+
+        inputDataArray.push(measureObj);
+        
+        counter ++;
 	}
 
 }

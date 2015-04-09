@@ -60,14 +60,8 @@ var normalize = function (){
                 applyData(printData);
                 return result_data;
                 },
-            forClassify:function(param_data){
-                result_data = {};
-                array_data = param_data;
-                applyData(normalizeData);
-                return result_data;
-            },
-            classifyNormalize:function(param_data){
-                return{bend:calcNormalize(temp.bend, bend_max, bend_min),pressure:calcNormalize(temp.pressure, pressure_max, pressure_min)};
+            changeDataForClassify:function(param_data){
+                return{bend:calcNormalize(param_data.bend, bend_max, bend_min),pressure:calcNormalize(param_data.pressure, pressure_max, pressure_min)};
             }
            
            };
@@ -90,8 +84,23 @@ var calcSquareUnit = function(x,y){
     return Math.pow((x - y),2);
 }
 
+var getClassifyData = function(array_data){
+        var inputArray = [];
+        var outputArray = [];
+        
+        UnderScore.each(array_data,
+                function(obj){
+                    inputArray.push(obj.bend);
+                    outputArray.push(obj.pressure);
+                }
+        );
+        
+        return {inputData:inputArray, outputData:outputArray};
+}
+
 module.exports = {
   normalize: normalize,
-  calcSquare:calcSquare
+  calcSquare:calcSquare,
+  getClassifyData:getClassifyData
 }
 
