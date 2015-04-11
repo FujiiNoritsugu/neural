@@ -29,7 +29,7 @@ function onMessage(message){
                         learnData();
                         targetMode = "inputForClassify";
                     }else if(targetMode === "classify"){
-                        Client.send(classifyData());
+                        Client.send(JSON.stringify({classify_result:classifyData()}));
                     }
 console.log("mode = " + targetMode);
                 }else if(paramType === "pattern"){
@@ -74,11 +74,12 @@ function learnData(){
 function classifyData(){
 
     var targetPattern = null;
-    var minSquare = Math.Infinity;
-    var classifyData = Util.getClassifyData(classifyArray.data);
+    var minSquare = 10000;
+    var classifyData = Util.getClassifyData(classifyArray);
     var classifyInputData = classifyData.inputData;
     var classifyOutputData = classifyData.outputData;
-
+    var classifyResult = {};
+    
 console.log("classifyInputData = " + JSON.stringify(classifyInputData));
 console.log("classifyOutputData = " + JSON.stringify(classifyOutputData));
 
@@ -86,14 +87,18 @@ console.log("classifyOutputData = " + JSON.stringify(classifyOutputData));
     UnderScore.each(resultObj, 
         function (value, key, list) {
             // 設定したユニットでパターン毎の分類データの出力を行い、実際の出力データとの二乗和誤差を計算する
-            value.square = Util.calcSquare(classifyOutputData, value.neural.output(classifyInputData));
-            if(value.square < minSquare){
+            var square = Util.calcSquare(classifyOutputData, value.neural.output(classifyInputData));
+            classifyResult[key+"_square"] = square;
+            if(square < minSquare){
+                minSquare = square;
                 targetPattern = key;
             }
         }
     );
-   
-   return targetPattern;
+
+    classifyResult.classifyPattern = targetPattern;
+
+   return classifyResult;
 }
 
 var Cylon = require('cylon');
@@ -129,7 +134,8 @@ var actionFunction = function(my){
             measureArray.push({pattern:targetPattern, data:inputDataArray});
         }else if(targetMode == "inputForClassify"){
         
-            classifyArray.push({pattern:"classify", data:inputDataArray});
+            //classifyArray.push({pattern:"classify", data:inputDataArray});
+            classifyArray = inputDataArray;
         }
         inputDataArray = [];
         counter = 0;
@@ -139,8 +145,8 @@ var actionFunction = function(my){
 
 function measurePressure(my){
 	pressureValue = my.pressureSensor.analogRead();
-	// 測定値30以下は異常値として省く
-	if(pressureValue > 30){
+	// 測定値50以下は異常値として省く
+	if(pressureValue > 50){
         console.log("bend = " + bendValue + " pressure = " + pressureValue);
         var measureObj = {bend:bendValue,pressure:pressureValue};
         // モニタに曲値と圧力値を送信する

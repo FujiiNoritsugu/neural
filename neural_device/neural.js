@@ -65,6 +65,12 @@ function check_loop(output_data){
            break;
         }
     }
+    
+    // 10000‰ñˆÈãŒvŽZ‚µ‚Ä‚àŽû‘©‚µ‚È‚¯‚ê‚Î‚»‚Ì‚Ü‚ÜI—¹
+    if(counter > 10000){
+        console.log("loop counter 10000 over !!");
+        result = true;
+    }
     return result;
 }
 

@@ -1,74 +1,45 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<script>
-    function sendMode(modeValue){
-      if(modeValue === 'classify'){
-        var patternArea = document.getElementById("patternArea");
-        patternArea.style = "display:none;";
-        pattern = "result";
-      }
-      
-      if(socket != null){
-          socket.send(JSON.stringify([{type:"mode",value:modeValue}]));
-      }
-    }
-    
-    function sendPattern(patternValue){
-       pattern = patternValue;
-       if(socket != null){
-           socket.send(JSON.stringify([{type:"pattern",value:patternValue}]));
-       }
-    }
-</script>
 <body>
-  <h2>Neural Device</h2>
   <div id="messageArea"></div>
   <div width = "1200" align = "center" style="font-weight:bold;">
+  <h2>Neural Device</h2>
+  <div id="classifyResultArea" style="color:red;"></div>
   <table>
     <tr>
-        <th>&nbsp;</th>
         <th>
             <span style="font:bold 15pt MSÉSÉVÉbÉN;">Input Data</span>
         </th>
+        <th>&nbsp;</th>
         <th>
             <span style="font:bold 15pt MSÉSÉVÉbÉN;">Pattern</span>
         </th>
     </tr>
     <tr>
         <td>
+            <canvas id="label_pattern" width="420" height="420"></canvas>
+        </td>
+        <td>
             <span style="font:bold 15pt MSÉSÉVÉbÉN;display:inline-block;transform:rotate(-90deg);">
                 pressure
             </span>
         </td>
         <td>
-            <canvas id="label_pattern" width="410" height="410"></canvas>
-        </td>
-        <td>
-            <canvas id="input_scatter" width="410" height="410"></canvas>
+            <canvas id="input_scatter" width="420" height="420"></canvas>
         </td>
     </tr>
     <tr>
         <td>
             &nbsp;
         </td>
+        <td>
+            &nbsp;
+        </td>
         <td style="text-align:center">
             <span style="font:bold 15pt MSÉSÉVÉbÉN;">bend</span>
         </td>
-        <td style="text-align:center">
-            <span id = "patternArea">
-                Pattern:
-                <input type="radio" name="pattern" value="soft" checked="checked" onclick="sendPattern('soft');">Soft
-                <input type="radio" name="pattern" value="hard" onclick="sendPattern('hard');">Hard
-            </span>
-        </td>
     </tr>
   </table>
-  <table>
-        <tr>
-            <td><input type="button" value="Learn" onClick = "sendMode('learn');"/></td>
-            <td><input type="button" value="classify" onClick = "sendMode('classify');"/></td>
-        </tr>
-   </table>
   </div>
 <script src="/socket.io/socket.io.js"></script>
 <script type="text/javascript" src="http://underscorejs.org/underscore-min.js"></script>
@@ -77,11 +48,11 @@
     // éUïzê}ÉGÉäÉAÇ∆ÉpÉ^Å[ÉìÉGÉäÉAÇÃògê¸Çï`Ç≠
     var inputArea = document.getElementById('input_scatter');
     inputAreaContext = inputArea.getContext('2d');
-    inputAreaContext.rect(0, 0, 405, 405);
+    inputAreaContext.rect(0, 0, 420, 420);
     inputAreaContext.stroke();
     var patternArea = document.getElementById('label_pattern');
     patternAreaContext = patternArea.getContext('2d');
-    patternAreaContext.rect(0, 0, 405, 405);
+    patternAreaContext.rect(0, 0, 420, 420);
     patternAreaContext.stroke();
 
     var messageArea = document.getElementById('messageArea');
@@ -101,7 +72,7 @@ socket.on('message', onMessage);
 function onMessage (message){
     try{
         var param = JSON.parse(message);
-        messageArea.innerHTML = message;
+        //messageArea.innerHTML = message;
         if(!_.isUndefined(param.normalized_data)){
             _.each(param.normalized_data, 
                 function(value, key, list){
@@ -112,13 +83,29 @@ function onMessage (message){
             drawMeasureData(param.measure_data);
         }else if(!_.isUndefined(param.classify_data)){
             drawData_for_classify(param.classify_data);
+        }else if(!_.isUndefined(param.classify_result)){
+            drawClassifyResult(param.classify_result);
         }
     }catch(e){
-        alert(e);
+        if(e.stack){
+            alert(e.stack);
+        }else{
+            alert(e);
+        }
     }
 }
 
 var data_counter = 1;
+
+function drawClassifyResult(result_data){
+    var resultMessage = "";
+    _.each(result_data, function(value, key, list){
+                            resultMessage = resultMessage + ' ' + key + '->' + value + '</br>';
+                        }
+    );
+    var classifyResultArea = document.getElementById('classifyResultArea');
+    classifyResultArea.innerHTML = resultMessage;
+}
 
 function drawMeasureData(measure_data){
 
@@ -183,8 +170,8 @@ function drawData_for_normalized(key, value){
         //ã»Ç∞Ç∆à≥óÕÇ≈éUïzê}Çï`Ç≠
         _.each(value.data, 
             function(param){
-                var arcX = Math.round(param.bend * 400) + 5;
-                var arcY = 405 - Math.round(param.pressure * 400);
+                var arcX = Math.round(param.bend * 400) + 10;
+                var arcY = 410 - Math.round(param.pressure * 400);
                 context.beginPath();
                 context.arc(arcX, arcY, 5, 0, Math.PI*2, false);
                 context.fillStyle = fontColor;
